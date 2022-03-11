@@ -185,6 +185,7 @@ __all__ = (
     'join',
     'least',
     'literal',
+    'local_table',
     'map',
     'NA',
     'negate',
@@ -325,6 +326,29 @@ def table(schema: sch.Schema, name: str | None = None) -> ir.TableExpr:
         schema = _schema(pairs=schema)
 
     node = ops.UnboundTable(schema, name=name)
+    return node.to_expr()
+
+
+def local_table(schema: sch.Schema, name: str | None = None) -> ir.TableExpr:
+    """Create a local table for build expressions without data.
+
+
+    Parameters
+    ----------
+    schema
+        A schema for the table
+    name
+        Name of local file or files of the table
+
+    Returns
+    -------
+    TableExpr
+        A local table expression
+    """
+    if not isinstance(schema, Schema):
+        schema = _schema(pairs=schema)
+
+    node = ops.LocalTable(schema, name=name)
     return node.to_expr()
 
 
@@ -1520,7 +1544,64 @@ def clip(
     if lower is None and upper is None:
         raise ValueError("at least one of lower and upper must be provided")
 
-    op = ops.Clip(arg, lower, upper)
+    if lower is None:
+        op = ops.ClipUpper(arg, upper)
+    elif upper is None:
+        op = ops.ClipLower(arg, lower)
+    else:
+        op = ops.Clip(arg, lower, upper)
+    return op.to_expr()
+
+
+def clip_lower(
+    arg: ir.NumericValue,
+    bound: ir.NumericValue | None = None,
+) -> ir.NumericValue:
+    """
+    Trim values at lower threshold.
+
+    Parameters
+    ----------
+    arg
+        Numeric expression
+    bound
+        Lower bound
+
+    Returns
+    -------
+    NumericValue
+        Clipped input
+    """
+    if bound is None:
+        raise ValueError("lower bound must be provided")
+
+    op = ops.ClipLower(arg, bound)
+    return op.to_expr()
+
+
+def clip_upper(
+    arg: ir.NumericValue,
+    bound: ir.NumericValue | None = None,
+) -> ir.NumericValue:
+    """
+    Trim values at upper threshold.
+
+    Parameters
+    ----------
+    arg
+        Numeric expression
+    bound
+        Upper bound
+
+    Returns
+    -------
+    NumericValue
+        Clipped input
+    """
+    if bound is None:
+        raise ValueError("upper bound must be provided")
+
+    op = ops.ClipUpper(arg, bound)
     return op.to_expr()
 
 
@@ -1655,6 +1736,8 @@ _numeric_value_methods = {
     'nullifzero': _unary_op('nullifzero', ops.NullIfZero),
     'zeroifnull': _unary_op('zeroifnull', ops.ZeroIfNull),
     'clip': clip,
+    'clip_lower': clip_lower,
+    'clip_upper': clip_upper,
     '__add__': add,
     'add': add,
     '__sub__': sub,
