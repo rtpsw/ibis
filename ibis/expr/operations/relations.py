@@ -79,6 +79,16 @@ class LocalTable(PhysicalTable):
 
 
 @public
+class LocalWrite(TableNode, sch.HasSchema):
+    table = rlz.table
+    name = rlz.instance_of(str)
+
+    @cached_property
+    def schema(self):
+        return self.table.schema()
+
+
+@public
 class DatabaseTable(PhysicalTable):
     name = rlz.instance_of(str)
     schema = rlz.instance_of(sch.Schema)

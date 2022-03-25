@@ -5262,6 +5262,26 @@ def projection(
     return op.to_expr()
 
 
+def local_write(table: ir.TableExpr, name: str | None = None) -> ir.TableExpr:
+    """Create a local-write of a table.
+
+
+    Parameters
+    ----------
+    table
+        Table expression for the local-write
+    name
+        Name of local file or files for the write
+
+    Returns
+    -------
+    TableExpr
+        A table expression with the same schema
+    """
+    node = ops.LocalWrite(table, name=name)
+    return node.to_expr()
+
+
 def _table_relabel(
     table: ir.TableExpr, substitutions: Mapping[str, str]
 ) -> ir.TableExpr:
@@ -5396,6 +5416,7 @@ _table_methods = {
     'filter': filter,
     'mutate': mutate,
     'projection': projection,
+    'local_write': local_write,
     'select': projection,
     'relabel': _table_relabel,
     'join': join,
