@@ -89,6 +89,18 @@ class LocalWrite(TableNode, sch.HasSchema):
 
 
 @public
+class AsOfMerge(TableNode, sch.HasSchema):
+    tables = rlz.list_of(rlz.table)
+    key_column = rlz.instance_of(str)
+    time_column = rlz.instance_of(str)
+    tolerance = rlz.instance_of(int)
+
+    @cached_property
+    def schema(self):
+        return sch.Schema.merge([table.schema() for table in self.tables])
+
+
+@public
 class DatabaseTable(PhysicalTable):
     name = rlz.instance_of(str)
     schema = rlz.instance_of(sch.Schema)

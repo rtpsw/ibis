@@ -5282,6 +5282,32 @@ def local_write(table: ir.TableExpr, name: str | None = None) -> ir.TableExpr:
     return node.to_expr()
 
 
+def as_of_merge(table: ir.TableExpr, more_tables: List[ir.TableExpr], key_column: str, time_column: str, tolerance: int) -> ir.TableExpr:
+    """Create an as-of-merge of a table.
+
+
+    Parameters
+    ----------
+    table
+        Table expression for the as-of-merge
+    more_tables
+        More tables to include in the as-of-merge
+    key_column
+        Name of int32-typed key-column for the as-of-merge
+    time_column
+        Name of int64-typed time-column for the as-of-merge
+    tolerance
+        Time tolerance for the as-of-merge
+
+    Returns
+    -------
+    TableExpr
+        A table expression with the merged schema
+    """
+    node = ops.AsOfMerge([table] + more_tables, key_column=key_column, time_column=time_column, tolerance=tolerance)
+    return node.to_expr()
+
+
 def _table_relabel(
     table: ir.TableExpr, substitutions: Mapping[str, str]
 ) -> ir.TableExpr:
@@ -5403,6 +5429,7 @@ def _rowid(self) -> ir.IntegerValue:
 
 
 _table_methods = {
+    'as_of_merge': as_of_merge,
     'aggregate': aggregate,
     'count': _table_count,
     'distinct': _table_distinct,
