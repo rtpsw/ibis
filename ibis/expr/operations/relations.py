@@ -415,6 +415,7 @@ class Selection(TableNode, sch.HasSchema):
         ),
         default=[],
     )
+    expand_table = rlz.optional(rlz.boolean, default=False)
 
     def _validate(self):
         from ibis.expr.analysis import FilterValidator
