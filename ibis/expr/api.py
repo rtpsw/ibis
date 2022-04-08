@@ -5284,7 +5284,13 @@ def local_write(table: ir.TableExpr, name: str | None = None) -> ir.TableExpr:
     return node.to_expr()
 
 
-def as_of_merge(table: ir.TableExpr, more_tables: List[ir.TableExpr], key_column: str, time_column: str, tolerance: int) -> ir.TableExpr:
+def as_of_merge(
+    table: ir.TableExpr,
+    more_tables: List[ir.TableExpr],
+    key_column: str,
+    time_column: str,
+    tolerance: int
+) -> ir.TableExpr:
     """Create an as-of-merge of a table.
 
 
@@ -5306,7 +5312,18 @@ def as_of_merge(table: ir.TableExpr, more_tables: List[ir.TableExpr], key_column
     TableExpr
         A table expression with the merged schema
     """
-    node = ops.AsOfMerge([table] + more_tables, key_column=key_column, time_column=time_column, tolerance=tolerance)
+    all_tables = [table] + more_tables
+    node = ops.AsOfMerge(
+        tolerance,
+        *[arg
+          for t in all_tables
+          for arg in [
+                      t,
+                      t.get_column(key_column),
+                      t.get_column(time_column),
+                     ]
+          ]
+    )
     return node.to_expr()
 
 
