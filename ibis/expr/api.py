@@ -5089,7 +5089,6 @@ def _safe_get_name(expr):
 def mutate(
     table: ir.TableExpr,
     exprs: Sequence[ir.Expr] | None = None,
-    expand_table: bool = False,
     **mutations: ir.ValueExpr,
 ) -> ir.TableExpr:
     """Add columns to a table expression.
@@ -5156,7 +5155,7 @@ def mutate(
         exprs.append(value.name(name))
 
     mutation_exprs = _L.get_mutation_exprs(exprs, table)
-    return table.projection(mutation_exprs, expand_table=expand_table)
+    return table.projection(mutation_exprs)
 
 
 def projection(
